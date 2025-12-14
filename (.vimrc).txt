@@ -1,0 +1,149 @@
+" ==========================================
+" 1. CONFIGURAÇÕES GERAIS (ESSENCIAIS)
+" ==========================================
+set number              " Números das linhas
+set relativenumber      " Números relativos (ótimo para movimentos)
+set mouse=a             " Habilita o mouse
+set clipboard=unnamedplus " Copiar/Colar integrado ao sistema
+set encoding=utf-8      " Codificação padrão
+set cursorline          " Destaca a linha atual
+set termguicolors       " Cores reais (24-bit)
+
+" -- Indentação e Tabulação --
+set tabstop=4           " Tab vale 4 espaços
+set shiftwidth=4        " Indentação vale 4 espaços
+set expandtab           " Troca Tab por espaços (Padrão Python)
+set smartindent         " Indentação inteligente
+
+" -- Busca e Menu --
+set ignorecase          " Busca ignorando maiúsculas/minúsculas
+set smartcase           " ...a menos que você digite uma maiúscula
+set completeopt=menuone,noselect " Menu de autocomplete melhorado
+
+" ==========================================
+" 2. GERENCIADOR DE PLUGINS (VIM-PLUG)
+" ==========================================
+call plug#begin('~/.vim/plugged')
+
+    " --- TEMAS VISUAIS (Top 2024/25) ---
+    Plug 'dracula/vim', { 'as': 'dracula' }
+    Plug 'ghifarit53/tokyonight-vim'
+    Plug 'catppuccin/vim', { 'as': 'catppuccin' }
+    Plug 'joshdick/onedark.vim'
+    Plug 'rebelot/kanagawa.nvim'
+    Plug 'rose-pine/neovim'
+    Plug 'sainnhe/sonokai'          " Vibrante mas confortável
+    Plug 'sainnhe/gruvbox-material' " Quente e alto contraste (ótimo backup)
+
+    " --- UTILITÁRIOS GERAIS ---
+    Plug 'vim-airline/vim-airline'        " Barra de status
+    Plug 'vim-airline/vim-airline-themes' " Temas da barra
+    Plug 'jiangmiao/auto-pairs'           " Fecha () [] {} '' automaticamente
+    Plug 'tpope/vim-commentary'           " Comenta linhas com 'gcc'
+    Plug 'preservim/nerdtree'             " Árvore de arquivos (Atalho: Ctrl+n)
+    Plug 'ryanoasis/vim-devicons'         " Ícones de arquivos (requer NerdFonts)
+
+    " --- AUTOCOMPLETE E PYTHON ---
+    " O Jedi deixa o SuperTab inteligente para Python
+    Plug 'davidhalter/jedi-vim'
+    Plug 'ervandew/supertab'
+
+    " Linter e Formatador (Erro em tempo real)
+    Plug 'dense-analysis/ale'
+
+call plug#end()
+
+" ==========================================
+" 3. CONFIGURAÇÃO DE TEMAS
+" ==========================================
+" Escolha o tema descomentando APENAS UMA linha abaixo:
+
+set background=dark
+
+" colorscheme dracula       " Clássico, alto contraste
+" colorscheme onedark       " Estilo Atom, equilibrado
+"colorscheme tokyonight    " Moderno, azul profundo (Muito popular!)
+" colorscheme catppuccin_mocha " Suave, tons pastéis
+colorscheme kanagawa      " Inspirado em arte japonesa, cores quentes
+
+" Configuração da Barra (Airline)
+let g:airline_theme='tokyonight' " Tente combinar com seu tema
+let g:airline_powerline_fonts = 1
+
+" ==========================================
+" 4. CONFIGURAÇÕES ESPECÍFICAS PARA PYTHON
+" ==========================================
+
+" -- Atalho F5 para rodar o código Python --
+autocmd FileType python map <buffer> <F5> :w<CR>:exec '!python3' shellescape(@%, 1)<CR>
+autocmd FileType python imap <buffer> <F5> <esc>:w<CR>:exec '!python3' shellescape(@%, 1)<CR>
+
+" -- Configuração do ALE (Linter e Fixer) --
+" (Requer que você instale: pip install flake8 black)
+let g:ale_linters = {
+\   'python': ['flake8'],
+\}
+
+let g:ale_fixers = {
+\   'python': ['black', 'isort'],
+\   '*': ['remove_trailing_lines', 'trim_whitespace']
+\}
+
+" --- AQUI ESTÁ A MUDANÇA PARA PARAR DE INCOMODAR ---
+let g:ale_lint_on_text_changed = 'never'   " Não mostra erro enquanto digita
+let g:ale_lint_on_insert_leave = 0       " Não mostra erro ao sair do modo de inserção
+let g:ale_lint_on_enter = 0              " Não mostra erro ao abrir o arquivo
+let g:ale_lint_on_save = 1               " Mostra erros APENAS ao salvar (:w)
+
+" Formatar e corrigir automaticamente ao salvar
+let g:ale_fix_on_save = 1
+
+" Ícones de erro na lateral (opcional, para ficar bonito)
+let g:ale_sign_error = '❌'
+let g:ale_sign_warning = '⚠️'
+
+
+
+" -- Ajustes do Jedi (Autocomplete) --
+let g:jedi#popup_on_dot = 1  " Abre menu ao digitar ponto (.)
+let g:jedi#use_tabs_not_buffers = 1
+
+" ==========================================
+" 5. OUTROS ATALHOS ÚTEIS
+" ==========================================
+" Ctrl+n para abrir/fechar a árvore de arquivos
+map <C-n> :NERDTreeToggle<CR>
+
+" Navegar entre janelas (Ctrl + setas)
+map <C-Left> <C-w>h
+map <C-Right> <C-w>l
+map <C-Up> <C-w>k
+map <C-Down> <C-w>j
+
+
+" ==========================================
+" 6. AJUSTES FINAIS DE CORES (PERSONALIZADO)
+" ==========================================
+function! PersonalizarCores()
+    " 1. Tira o fundo da coluna dos números (Deixa transparente)
+    highlight LineNr guifg=#444444 guibg=NONE
+
+    " 2. Tira o fundo da coluna de ícones/erros (SignColumn) - ESSA É A CULPADA GERALMENTE
+    highlight SignColumn guibg=NONE
+
+    " 3. Tira o fundo da coluna de dobras (caso apareça)
+    highlight FoldColumn guibg=NONE
+
+    " 4. Inteiros (Verde Neon) e Floats (Laranja Mecânica)
+    highlight Number guifg=#00FF00 guibg=NONE gui=bold
+    highlight Float guifg=#FF8800 guibg=NONE gui=bold
+
+    " (Opcional) Linha vertical que separa janelas (se estiver clara demais)
+    highlight VertSplit guibg=NONE guifg=#444444
+endfunction
+
+" Garante que a função rode sempre que mudar o tema
+autocmd ColorScheme * call PersonalizarCores()
+
+" Aplica as mudanças agora mesmo
+call PersonalizarCores()
